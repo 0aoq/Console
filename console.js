@@ -162,11 +162,7 @@ const returninput = function(after) {
             }
         }
 
-        var cmdRun = [{
-            value: cmdValue
-        }]
-
-        cmd_history.push(cmdRun)
+        cmd_history.push([{ value: cmdValue }])
         setTimeout(() => {
             window.localStorage.setItem("cmd_history", JSON.stringify(cmd_history))
         }, 1);
