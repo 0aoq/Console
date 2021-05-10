@@ -2,6 +2,8 @@
 
 var cmdSuccess = false
 
+var cmd_history = []
+
 var colors = {
     user: "rgb(79, 248, 116)",
     system: "rgb(248, 245, 79)",
@@ -62,10 +64,37 @@ var commands = [{
                 [fileHandle] = await window.showOpenFilePicker();
                 var file = await fileHandle.getFile()
 
-                returntxt("#", `{ ${await file.text()} }`)
+                returntxt("#", `{ "${await file.text()}" }`)
             }
 
             getFile()
+        }
+    }
+}, {
+    title: "time",
+    args: false,
+    run: function(args) {
+        cmdSuccess = true
+
+        returntxt("#", new Date().toLocaleString())
+    }
+}, {
+    title: "history",
+    args: true,
+    run: function(args) {
+        cmdSuccess = true
+
+        if (args[1] == "-c") {
+            cmd_history = []
+            window.localStorage.setItem("cmd_history", cmd_history)
+        } else if (args[1] == "-ls") {
+            var json = JSON.parse(window.localStorage.getItem("cmd_history"))
+
+            for (let node of json) {
+                var int = 0
+                returntxt("#", node[int].value)
+                int++
+            }
         }
     }
 }]
@@ -132,6 +161,15 @@ const returninput = function(after) {
                 }
             }
         }
+
+        var cmdRun = [{
+            value: cmdValue
+        }]
+
+        cmd_history.push(cmdRun)
+        setTimeout(() => {
+            window.localStorage.setItem("cmd_history", JSON.stringify(cmd_history))
+        }, 1);
 
         if (!cmdSuccess) {
             returntxt("/", `${cmdValue} is not recognized as a valid command.`)
