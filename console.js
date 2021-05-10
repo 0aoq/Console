@@ -26,6 +26,47 @@ var commands = [{
         cmdSuccess = true
         console.log(`test2 ${args[1]}`)
     }
+}, {
+    title: "clear",
+    args: false,
+    run: function(args) {
+        cmdSuccess = true
+
+        document.body.removeChild()
+    }
+}, {
+    title: "fs",
+    args: true,
+    run: function(args) {
+        cmdSuccess = true
+        if (args[1] == "info") {
+            let fileHandle;
+
+            async function getFile() {
+                [fileHandle] = await window.showOpenFilePicker();
+                var file = await fileHandle.getFile()
+
+                returntxt("#", `FILE INFORMATION: {
+    name: "${file.name}",
+    size: "${file.size} bytes",
+    lastmodified: "${file.lastModifiedDate}"
+}`)
+            }
+
+            getFile()
+        } else if (args[1] == "content") {
+            let fileHandle;
+
+            async function getFile() {
+                [fileHandle] = await window.showOpenFilePicker();
+                var file = await fileHandle.getFile()
+
+                returntxt("#", `{ ${await file.text()} }`)
+            }
+
+            getFile()
+        }
+    }
 }]
 
 // Returns (new inputs/labels)
