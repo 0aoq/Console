@@ -32,7 +32,8 @@ var commands = [{
     run: function(args) {
         cmdSuccess = true
 
-        document.body.removeChild()
+        document.body.innerHTML = ""
+        returninput()
     }
 }, {
     title: "fs",
