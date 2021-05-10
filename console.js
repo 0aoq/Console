@@ -121,7 +121,7 @@ const returntxt = function(type, msg, from, color) {
     }
 }
 
-const returninput = function(after) {
+const returninput = function() {
     document.body.insertAdjacentHTML("beforeend", `
         <form id="newline_form">
             <input placeholder="[&] New Line" name="cmd" id="cmd" autocomplete="off"></input>
