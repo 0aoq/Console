@@ -321,7 +321,7 @@ lastmodified: "${file.lastModifiedDate}"
 
             // Log Site Console Events
 
-            if (this.webconsole) { // how is this even working, I tried it elsewhere and it didn't...
+            if (this.webconsole) {
                 console.log = function(msg) {
                     returntxt("@", msg, "webconsole_log")
                 }
