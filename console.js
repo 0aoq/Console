@@ -1,3 +1,35 @@
+let cmdSuccess = false
+
+let colors = {
+    user: "rgb(79, 248, 116)",
+    system: "rgb(248, 245, 79)",
+
+    return: {
+        success: this.textcolor,
+        error: "rgb(255, 87, 87)"
+    }
+}
+
+const returntxt = function(type, msg, from, color) {
+    if (from) {
+        document.body.insertAdjacentHTML("beforeend", `
+<pre style="display: inline-block; color: ${color}">[${type}${from}]</pre>
+<pre style="display: inline-block;">${msg}</pre>
+<pre style="margin: 0; margin-bottom: 0;"></pre>
+`)
+    } else {
+        if (!type.search("/")) { // don't ask me to explain why this works, because I don't know
+            document.body.insertAdjacentHTML("beforeend", `
+    <pre style="color: ${colors.return.error}">[${type}] ${msg}</pre>
+`)
+        } else {
+            document.body.insertAdjacentHTML("beforeend", `
+    <pre style="color: ${colors.return.success}">[${type}] ${msg}</pre>
+`)
+        }
+    }
+}
+
 function terminal() {
     setTimeout(() => {
         let currentsettings = [{
@@ -59,21 +91,9 @@ function terminal() {
 
         // Params/Variables
 
-        var cmdSuccess = false
+        let cmd_history = []
 
-        var cmd_history = []
-
-        var colors = {
-            user: "rgb(79, 248, 116)",
-            system: "rgb(248, 245, 79)",
-
-            return: {
-                success: this.textcolor,
-                error: "rgb(255, 87, 87)"
-            }
-        }
-
-        var commands = [{
+        let commands = [{
             title: "test1",
             args: false,
             run: function(args) {
@@ -235,27 +255,15 @@ lastmodified: "${file.lastModifiedDate}"
 
         */
 
+        // Load custom commands
+
+        for (command in this.cmds) {
+            commands.push(this.cmds[command])
+        }
+
         // Returns (new inputs/labels)
 
-        const returntxt = function(type, msg, from, color) {
-            if (from) {
-                document.body.insertAdjacentHTML("beforeend", `
-        <pre style="display: inline-block; color: ${color}">[${type}${from}]</pre>
-        <pre style="display: inline-block;">${msg}</pre>
-        <pre style="margin: 0; margin-bottom: 0;"></pre>
-    `)
-            } else {
-                if (!type.search("/")) { // don't ask me to explain why this works, because I don't know
-                    document.body.insertAdjacentHTML("beforeend", `
-            <pre style="color: ${colors.return.error}">[${type}] ${msg}</pre>
-        `)
-                } else {
-                    document.body.insertAdjacentHTML("beforeend", `
-            <pre style="color: ${colors.return.success}">[${type}] ${msg}</pre>
-        `)
-                }
-            }
-        }
+        // returntxt: moved to public function
 
         const returninput = function() {
             document.body.insertAdjacentHTML("beforeend", `
@@ -321,7 +329,7 @@ lastmodified: "${file.lastModifiedDate}"
 
             // Log Site Console Events
 
-            if (this.webconsole) { // how is this even working, I tried it elsewhere and it didn't...
+            if (this.webconsole) {
                 console.log = function(msg) {
                     returntxt("@", msg, "webconsole_log")
                 }
@@ -342,12 +350,14 @@ lastmodified: "${file.lastModifiedDate}"
 }
 
 terminal.prototype = {
-    render: function(webconsole, background, textcolor, startmsg) {
+    render: function(webconsole, background, textcolor, startmsg, cmds) {
         this.webconsole = webconsole
 
         this.background = background
         this.textcolor = textcolor
 
         this.startmsg = startmsg
-    }
+
+        this.cmds = cmds
+    },
 }

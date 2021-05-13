@@ -25,13 +25,23 @@
     <script src="console.js"></script>
 
     <script>
-        new terminal().render(
+        let term = new terminal().render(
             webconsole = true,
 
             background = "#000",
             textcolor = "#fff",
 
-            startmsg = "Console loaded. (Experimental Version)"
+            startmsg = "Console loaded. (Experimental Version)",
+
+            cmds = [{
+                title: "custom",
+                args: false,
+                run: function(args) {
+                    cmdSuccess = true
+
+                    returntxt("#", "Custom cmd run successfully.")
+                }
+            }]
         )
     </script>
 </body>
