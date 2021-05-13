@@ -8,55 +8,32 @@
     <title>Console</title>
 
     <style>
+        html {
+            height: 500px;
+        }
+        
         body {
-            overflow-x: hidden;
-            background: black;
-            font-family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
-            -moz-osx-font-smoothing: grayscale;
-            -webkit-font-smoothing: antialiased;
-            text-rendering: optimizeSpeed;
-            margin: 0;
-            overflow-wrap: break-word;
-            padding: 0;
-            word-wrap: break-word;
-            color: white;
-        }
-        
-         ::selection {
-            background: white;
-            color: black;
-        }
-        
-         ::-moz-selection {
-            background: white;
-            color: black;
-        }
-        
-        pre {
-            margin: 0;
-            margin-bottom: 0.3em;
-            margin-top: 0;
-        }
-        
-        input {
-            background: black;
-            resize: none;
-            outline: none;
-            height: auto;
-            color: white;
-            display: block;
-            border: none;
-            font-family: monospace;
-            white-space: pre;
-            width: 100vw;
-            margin-top: 0.5em;
+            width: 500px;
         }
     </style>
 </head>
 
 <body>
+    <div></div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="console.js"></script>
+
+    <script>
+        new terminal().render(
+            webconsole = true,
+
+            background = "#000",
+            textcolor = "#fff",
+
+            startmsg = "Console loaded. (Experimental Version)"
+        )
+    </script>
 </body>
 
 </html>
