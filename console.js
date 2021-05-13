@@ -357,7 +357,12 @@ terminal.prototype = {
         this.textcolor = textcolor
 
         this.startmsg = startmsg
+<<<<<<< HEAD
 
         this.cmds = cmds
     },
 }
+=======
+    }
+}
+>>>>>>> d80b0f1180e85d013b832d66d659df982eada78b
