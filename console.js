@@ -323,9 +323,28 @@ lastmodified: "${file.lastModifiedDate}"
                 $("#cmd").focus()
             })
 
-            document.body.addEventListener('keydown', () => {
+            let ctrl = false
+            document.body.addEventListener('keydown', e => {
                 $("#cmd").focus()
+
+                if (e.key == "Control" && ctrl == false) {
+                    ctrl = true
+                } else if (e.key == "c" && ctrl == true) {
+                    ctrl = false
+                    returntxt("@", "^C", "user", colors.user)
+                } else if (e.key == "v" && ctrl == true) {
+                    ctrl = false
+                    returntxt("@", "^V", "user", colors.user)
+                }
+
+                setTimeout(() => {
+                    if (ctrl) {
+                        ctrl = false
+                    }
+                }, 100);
             })
+
+            document.addEventListener('contextmenu', event => event.preventDefault());
 
             // Log Site Console Events
 
