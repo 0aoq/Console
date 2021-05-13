@@ -257,8 +257,8 @@ lastmodified: "${file.lastModifiedDate}"
 
         // Load custom commands
 
-        for (command in this.cmds) {
-            commands.push(this.cmds[command])
+        for (command of this.cmds) {
+            commands.push(command)
         }
 
         // Returns (new inputs/labels)
