@@ -91,6 +91,12 @@ function terminal() {
 
         // Params/Variables
 
+        function getbool(txt) {
+            if (txt == "true") { return true } else if (txt == "false") { return false }
+        }
+
+        let contextmenu_enabled = false
+
         let cmd_history = []
 
         let commands = [{
@@ -238,6 +244,58 @@ lastmodified: "${file.lastModifiedDate}"
 
                 returntxt("/", "JSON is not currently supported in this version of the terminal.")
             }
+        }, {
+            title: "spm",
+            args: true,
+            run: function(args) {
+                cmdSuccess = true
+
+                returntxt("/", "Super Plugin Manager is currently disabled on this system.")
+            }
+        }, {
+            title: "random",
+            args: true,
+            run: function(args) {
+                cmdSuccess = true
+
+                let number = 0
+
+                if (args[2] == "random") {
+                    number = Math.floor(Math.random() * (+100 - +32)) + +32
+                    console.log(args[2])
+                } else if (args[2] != "0") {
+                    number = args[2]
+                }
+
+                if (args[1] == "string" && number) {
+                    const getString = function(length) {
+                        let result = []
+                        let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!?'
+                        let charactersLength = characters.length
+                        for (let i = 0; i < length; i++) {
+                            result.push(characters.charAt(Math.floor(Math.random() * charactersLength)))
+                        }
+                        return result.join('')
+                    }
+
+                    returntxt("#", getString(number))
+                } else {
+                    returntxt("/", "Cannot generate a random string with the length of 0 or null.")
+                }
+            }
+        }, {
+            title: "contextmenu",
+            args: true,
+            run: function(args) {
+                cmdSuccess = true
+
+                if (args[1] != null && args[1] == "true" || args[1] == "false") {
+                    contextmenu_enabled = getbool(args[1])
+                    returntxt("#", `web: contextmenu_enabled = ${contextmenu_enabled}`)
+                } else {
+                    returntxt("/", `Cannot change the value of contextmenu_enabled to the value "${args[1]}"`)
+                }
+            }
         }, ]
 
         /*
@@ -311,10 +369,8 @@ lastmodified: "${file.lastModifiedDate}"
                     window.localStorage.setItem("cmd_history", JSON.stringify(cmd_history))
                 }, 1);
 
-                if (!cmdSuccess) {
+                if (!cmdSuccess) { // Check is command was run
                     returntxt("/", `${cmdValue} is not recognized as a valid command.`)
-                } else {
-                    returntxt("#", "Command ran successfully.")
                 }
 
                 document.getElementById("newline_form").remove()
@@ -344,7 +400,11 @@ lastmodified: "${file.lastModifiedDate}"
                 }, 100);
             })
 
-            document.addEventListener('contextmenu', event => event.preventDefault());
+            document.addEventListener('contextmenu', event => {
+                if (contextmenu_enabled == false) {
+                    event.preventDefault()
+                }
+            });
 
             // Log Site Console Events
 
