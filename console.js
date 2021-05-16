@@ -379,7 +379,7 @@ lastmodified: "${file.lastModifiedDate}"
                 $("#cmd").focus()
             })
 
-            let ctrl = false
+            /* let ctrl = false
             document.body.addEventListener('keydown', e => {
                 $("#cmd").focus()
 
@@ -398,7 +398,7 @@ lastmodified: "${file.lastModifiedDate}"
                         ctrl = false
                     }
                 }, 100);
-            })
+            }) */
 
             document.addEventListener('contextmenu', event => {
                 if (contextmenu_enabled == false) {
