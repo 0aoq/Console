@@ -91,6 +91,12 @@ function terminal() {
 
         // Params/Variables
 
+        function getbool(txt) {
+            if (txt == "true") { return true } else if (txt == "false") { return false }
+        }
+
+        let contextmenu_enabled = false
+
         let cmd_history = []
 
         let commands = [{
@@ -238,6 +244,84 @@ lastmodified: "${file.lastModifiedDate}"
 
                 returntxt("/", "JSON is not currently supported in this version of the terminal.")
             }
+        }, {
+            title: "spm",
+            args: true,
+            run: function(args) {
+                cmdSuccess = true
+
+                returntxt("/", "Super Plugin Manager is currently disabled on this system.")
+            }
+        }, {
+            title: "random",
+            args: true,
+            run: function(args) {
+                cmdSuccess = true
+
+                let number = 0
+
+                if (args[2] == "random") {
+                    number = Math.floor(Math.random() * (+100 - +32)) + +32
+                    console.log(args[2])
+                } else if (args[2] != "0") {
+                    number = args[2]
+                }
+
+                if (args[1] == "string" && number) {
+                    const getString = function(length) {
+                        let result = []
+                        let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!?'
+                        let charactersLength = characters.length
+                        for (let i = 0; i < length; i++) {
+                            result.push(characters.charAt(Math.floor(Math.random() * charactersLength)))
+                        }
+                        return result.join('')
+                    }
+
+                    returntxt("#", getString(number))
+                } else {
+                    returntxt("/", "Cannot generate a random string with the length of 0 or null.")
+                }
+            }
+        }, {
+            title: "contextmenu",
+            args: true,
+            run: function(args) {
+                cmdSuccess = true
+
+                if (args[1] != null && args[1] == "true" || args[1] == "false") {
+                    contextmenu_enabled = getbool(args[1])
+                    returntxt("#", `web: contextmenu_enabled = ${contextmenu_enabled}`)
+                } else {
+                    returntxt("/", `Cannot change the value of contextmenu_enabled to the value "${args[1]}"`)
+                }
+            }
+        }, {
+            title: "activateWallet",
+            args: true,
+            run: function(args) {
+                cmdSuccess = true
+
+                if (args[1] != null) {
+                    if (!window.localStorage.getItem("user__cointsWaller")) {
+                        new wallet(args[1], 0)
+                        returntxt("#", `Wallet created.`)
+                    }
+                }
+            }
+        }, {
+            title: "readWallet",
+            args: true,
+            run: function(args) {
+                cmdSuccess = true
+
+                if (args[1] != null) {
+                    if (args[1] == "current") {
+                        const __json = JSON.parse(window.localStorage.getItem("user__coinsWallet"))
+                        returntxt("$", `Name: ${__json.displayName}, Coins: ${__json.coins}`)
+                    }
+                }
+            }
         }, ]
 
         /*
@@ -255,6 +339,37 @@ lastmodified: "${file.lastModifiedDate}"
 
         */
 
+        // Load wallet cmd
+
+        class wallet {
+            constructor(displayName, coins) {
+                this.displayName = displayName
+                this.coins = coins
+
+                this.saveString = JSON.stringify({
+                    displayName: this.displayName,
+                    coins: this.coins
+                })
+
+                // window.localStorage.setItem(this.displayName + "__coinsWallet", this.saveString)
+                window.localStorage.setItem("user__coinsWallet", this.saveString)
+            }
+        }
+
+        function addCoins(coins) {
+            const __json = JSON.parse(window.localStorage.getItem("user__coinsWallet"))
+            __json.coins = __json.coins + coins
+            window.localStorage.setItem("user__coinsWallet", JSON.stringify(__json))
+
+            setTimeout(() => {
+                addCoins(coins)
+            }, 2000);
+        }
+
+        if (window.localStorage.getItem("user__coinsWallet")) {
+            addCoins(1.5)
+        }
+
         // Load custom commands
 
         for (command of this.cmds) {
@@ -267,11 +382,11 @@ lastmodified: "${file.lastModifiedDate}"
 
         const returninput = function() {
             document.body.insertAdjacentHTML("beforeend", `
-    <form id="newline_form">
-        <input placeholder="[&] New Line" name="cmd" id="cmd" autocomplete="off"></input>
-        <button style="display: none;">Submit</button>
-    </form>
-`)
+                <form id="newline_form">
+                    <input placeholder="[&] New Line" name="cmd" id="cmd" autocomplete="off"></input>
+                    <button style="display: none;">Submit</button>
+                </form>
+            `)
 
             // Command Submit
 
@@ -311,10 +426,8 @@ lastmodified: "${file.lastModifiedDate}"
                     window.localStorage.setItem("cmd_history", JSON.stringify(cmd_history))
                 }, 1);
 
-                if (!cmdSuccess) {
+                if (!cmdSuccess) { // Check is command was run
                     returntxt("/", `${cmdValue} is not recognized as a valid command.`)
-                } else {
-                    returntxt("#", "Command ran successfully.")
                 }
 
                 document.getElementById("newline_form").remove()
@@ -323,7 +436,7 @@ lastmodified: "${file.lastModifiedDate}"
                 $("#cmd").focus()
             })
 
-            let ctrl = false
+            /* let ctrl = false
             document.body.addEventListener('keydown', e => {
                 $("#cmd").focus()
 
@@ -342,9 +455,13 @@ lastmodified: "${file.lastModifiedDate}"
                         ctrl = false
                     }
                 }, 100);
-            })
+            }) */
 
-            document.addEventListener('contextmenu', event => event.preventDefault());
+            document.addEventListener('contextmenu', event => {
+                if (contextmenu_enabled == false) {
+                    event.preventDefault()
+                }
+            });
 
             // Log Site Console Events
 
