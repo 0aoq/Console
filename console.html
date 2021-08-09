@@ -25,15 +25,15 @@
     <script src="console.js"></script>
 
     <script>
-        let term = new terminal().render(
-            webconsole = true,
+        let term = new terminal().render({
+            webconsole: true,
 
-            background = "#000",
-            textcolor = "#fff",
+            background: "#000",
+            textcolor: "#fff",
 
-            startmsg = "Console loaded. (Experimental Version)",
+            startmsg: "Console loaded. (Experimental Version)",
 
-            cmds = [{
+            cmds: [{
                 title: "custom",
                 args: false,
                 run: function(args) {
@@ -42,7 +42,7 @@
                     returntxt("#", "Custom cmd run successfully.")
                 }
             }]
-        )
+        })
     </script>
 </body>
 

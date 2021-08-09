@@ -18,7 +18,7 @@ const returntxt = function(type, msg, from, color) {
 <pre style="margin: 0; margin-bottom: 0;"></pre>
 `)
     } else {
-        if (!type.search("/")) { // don't ask me to explain why this works, because I don't know
+        if (!type.search("/")) {
             document.body.insertAdjacentHTML("beforeend", `
     <pre style="color: ${colors.return.error}">[${type}] ${msg}</pre>
 `)
@@ -32,6 +32,12 @@ const returntxt = function(type, msg, from, color) {
 
 function terminal() {
     setTimeout(() => {
+        this.webconsole = this.configOpts.webconsole || false
+        this.background = this.configOpts.background || "#000"
+        this.textcolor = this.configOpts.textcolor || "#fff"
+        this.startmsg = this.configOpts.startmsg || "Web console test."
+        this.cmds = this.configOpts.cmds || []
+
         let currentsettings = [{
             webconsole: this.webconsole,
             background: this.background,
@@ -486,14 +492,9 @@ lastmodified: "${file.lastModifiedDate}"
 }
 
 terminal.prototype = {
-    render: function(webconsole, background, textcolor, startmsg, cmds) {
-        this.webconsole = webconsole
-
-        this.background = background
-        this.textcolor = textcolor
-
-        this.startmsg = startmsg
-
-        this.cmds = cmds
+    render: function(config) {
+        this.configOpts = config
     },
 }
+
+// webconsole, background, textcolor, startmsg, cmds
