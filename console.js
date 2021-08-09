@@ -13,18 +13,19 @@ let colors = {
 const returntxt = function(type, msg, from, color) {
     if (from) {
         document.body.insertAdjacentHTML("beforeend", `
-<pre style="display: inline-block; color: ${color}">[${type}${from}]</pre>
-<pre style="display: inline-block;">${msg}</pre>
-<pre style="margin: 0; margin-bottom: 0;"></pre>
+<span>
+<pre style="display: inline-block; color: ${color}; margin: 0;"">[${type}${from}]</pre>
+<pre style="display: inline-block; margin: 0;">${msg}</pre>
+</span><br>
 `)
     } else {
         if (!type.search("/")) {
             document.body.insertAdjacentHTML("beforeend", `
-    <pre style="color: ${colors.return.error}">[${type}] ${msg}</pre>
+    <pre style="color: ${colors.return.error}; margin: 0;">[${type}] ${msg}</pre>
 `)
         } else {
             document.body.insertAdjacentHTML("beforeend", `
-    <pre style="color: ${colors.return.success}">[${type}] ${msg}</pre>
+    <pre style="color: ${colors.return.success}; margin: 0;">[${type}] ${msg}</pre>
 `)
         }
     }
@@ -33,9 +34,9 @@ const returntxt = function(type, msg, from, color) {
 function terminal() {
     setTimeout(() => {
         this.webconsole = this.configOpts.webconsole || false
-        this.background = this.configOpts.background || "#000"
+        this.background = this.configOpts.background || "rgb(30, 32, 48)"
         this.textcolor = this.configOpts.textcolor || "#fff"
-        this.startmsg = this.configOpts.startmsg || "Web console test."
+        this.startmsg = this.configOpts.startmsg || "Web console test running successfully"
         this.cmds = this.configOpts.cmds || []
 
         let currentsettings = [{
@@ -52,7 +53,7 @@ function terminal() {
             body {
                 overflow-x: hidden;
                 background: ${this.background};
-                font-family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+                font-family: Segoe WPC,Segoe UI,sans-serif;
                 -moz-osx-font-smoothing: grayscale;
                 -webkit-font-smoothing: antialiased;
                 text-rendering: optimizeSpeed;
