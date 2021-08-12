@@ -10,21 +10,21 @@ let colors = {
     }
 }
 
-const returntxt = function(type, msg, from, color) {
+const returntxt = function(container, type, msg, from, color) {
     if (from) {
-        document.body.insertAdjacentHTML("beforeend", `
-<span>
-<pre style="display: inline-block; color: ${color}; margin: 0;"">[${type}${from}]</pre>
+        container.insertAdjacentHTML("beforeend", `
+<p>
+<pre style="display: inline-block; color: ${color || "#fff"}; margin: 0;"">[${type}${from}]</pre>
 <pre style="display: inline-block; margin: 0;">${msg}</pre>
-</span><br>
+</p>
 `)
     } else {
         if (!type.search("/")) {
-            document.body.insertAdjacentHTML("beforeend", `
+            container.insertAdjacentHTML("beforeend", `
     <pre style="color: ${colors.return.error}; margin: 0;">[${type}] ${msg}</pre>
 `)
         } else {
-            document.body.insertAdjacentHTML("beforeend", `
+            container.insertAdjacentHTML("beforeend", `
     <pre style="color: ${colors.return.success}; margin: 0;">[${type}] ${msg}</pre>
 `)
         }
@@ -33,7 +33,7 @@ const returntxt = function(type, msg, from, color) {
 
 function terminal() {
     setTimeout(() => {
-        this.webconsole = this.configOpts.webconsole || false
+        let container = this.container
         this.background = this.configOpts.background || "rgb(30, 32, 48)"
         this.textcolor = this.configOpts.textcolor || "#fff"
         this.startmsg = this.configOpts.startmsg || "Web console test running successfully"
@@ -48,52 +48,62 @@ function terminal() {
 
         // Styles
 
-        document.head.innerHTML += `
-        <style>
-            body {
-                overflow-x: hidden;
-                background: ${this.background};
-                font-family: Segoe WPC,Segoe UI,sans-serif;
-                -moz-osx-font-smoothing: grayscale;
-                -webkit-font-smoothing: antialiased;
-                text-rendering: optimizeSpeed;
-                margin: 0;
-                overflow-wrap: break-word;
-                padding: 0;
-                word-wrap: break-word;
-                color: white;
-            }
+        container.classList.add("--consoleRendered")
+        container.innerHTML += `
+<!-- TEST CONSOLE -->
+<!-- 0aoq/Console - https://github.com/0aoq/Console -->
+<!-- --- -->
+<style>
+    :root {
+        --console-background: ${this.background};
+    }
+
+    .--consoleRendered {
+        overflow-x: hidden;
+        background: var(--console-background);
+        font-family: Segoe WPC,Segoe UI,sans-serif;
+        -moz-osx-font-smoothing: grayscale;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeSpeed;
+        margin: 0;
+        overflow-wrap: break-word;
+        padding: 0;
+        word-wrap: break-word;
+        color: white;
+        height: 100%;
+    }
             
-            ::selection {
-                background: white;
-                color: black;
-            }
+    .--consoleRendered::selection {
+        background: white;
+        color: black;
+    }
             
-            ::-moz-selection {
-                background: white;
-                color: black;
-            }
+    .--consoleRendered::-moz-selection {
+        background: white;
+        color: black;
+    }
             
-            pre {
-                margin: 0;
-                margin-bottom: 0.3em;
-                margin-top: 0;
-            }
+    .--consoleRendered pre {
+        margin: 0;
+        margin-bottom: 0.3em;
+        margin-top: 0;
+    }
             
-            input {
-                background: ${this.background};
-                resize: none;
-                outline: none;
-                height: auto;
-                color: white;
-                display: block;
-                border: none;
-                font-family: monospace;
-                white-space: pre;
-                width: 100vw;
-                margin-top: 0.5em;
-            }
-        </style>    
+    .--consoleRendered input {
+        background: transparent;
+        resize: none;
+        outline: none;
+        height: auto;
+        color: white;
+        display: block;
+        border: none;
+        font-family: monospace;
+        white-space: pre;
+        width: 100vw;
+        margin-top: 0.5em;
+    }
+</style>
+<!-- --- -->
         `
 
         // Params/Variables
@@ -141,7 +151,7 @@ function terminal() {
                         [fileHandle] = await window.showOpenFilePicker();
                         var file = await fileHandle.getFile()
 
-                        returntxt("#", `FILE INFORMATION: {
+                        returntxt(container, "#", `FILE INFORMATION: {
 name: "${file.name}",
 size: "${file.size} bytes",
 lastmodified: "${file.lastModifiedDate}"
@@ -156,7 +166,7 @@ lastmodified: "${file.lastModifiedDate}"
                         [fileHandle] = await window.showOpenFilePicker();
                         var file = await fileHandle.getFile()
 
-                        returntxt("#", `{ "${await file.text()}" }`)
+                        returntxt(container, "#", `{ "${await file.text()}" }`)
                     }
 
                     getFile()
@@ -168,7 +178,7 @@ lastmodified: "${file.lastModifiedDate}"
             run: function(args) {
                 cmdSuccess = true
 
-                returntxt("#", new Date().toLocaleString())
+                returntxt(container, "#", new Date().toLocaleString())
             }
         }, {
             title: "history",
@@ -184,7 +194,7 @@ lastmodified: "${file.lastModifiedDate}"
 
                     for (let node of json) {
                         var int = 0
-                        returntxt("#", node[int].value)
+                        returntxt(container, "#", node[int].value)
                         int++
                     }
                 }
@@ -229,9 +239,9 @@ lastmodified: "${file.lastModifiedDate}"
                 cmdSuccess = true
 
                 if (args[1] == "settings") {
-                    returntxt("#", JSON.stringify(currentsettings))
+                    returntxt(container, "#", JSON.stringify(currentsettings))
                 } else if (args[1] == "webconsole") {
-                    returntxt("#", "Testing for webconsole support, sending console log.")
+                    returntxt(container, "#", "Testing for webconsole support, sending console log.")
                     console.log("If you can see this without opening devtools, the webconsole is enabled.")
                 }
             }
@@ -249,7 +259,7 @@ lastmodified: "${file.lastModifiedDate}"
             run: function(args) {
                 cmdSuccess = true
 
-                returntxt("/", "JSON is not currently supported in this version of the terminal.")
+                returntxt(container, "/", "JSON is not currently supported in this version of the terminal.")
             }
         }, {
             title: "spm",
@@ -257,7 +267,7 @@ lastmodified: "${file.lastModifiedDate}"
             run: function(args) {
                 cmdSuccess = true
 
-                returntxt("/", "Super Plugin Manager is currently disabled on this system.")
+                returntxt(container, "/", "Super Plugin Manager is currently disabled on this system.")
             }
         }, {
             title: "random",
@@ -285,9 +295,9 @@ lastmodified: "${file.lastModifiedDate}"
                         return result.join('')
                     }
 
-                    returntxt("#", getString(number))
+                    returntxt(container, "#", getString(number))
                 } else {
-                    returntxt("/", "Cannot generate a random string with the length of 0 or null.")
+                    returntxt(container, "/", "Cannot generate a random string with the length of 0 or null.")
                 }
             }
         }, {
@@ -298,9 +308,9 @@ lastmodified: "${file.lastModifiedDate}"
 
                 if (args[1] != null && args[1] == "true" || args[1] == "false") {
                     contextmenu_enabled = getbool(args[1])
-                    returntxt("#", `web: contextmenu_enabled = ${contextmenu_enabled}`)
+                    returntxt(container, "#", `web: contextmenu_enabled = ${contextmenu_enabled}`)
                 } else {
-                    returntxt("/", `Cannot change the value of contextmenu_enabled to the value "${args[1]}"`)
+                    returntxt(container, "/", `Cannot change the value of contextmenu_enabled to the value "${args[1]}"`)
                 }
             }
         }, {
@@ -312,7 +322,7 @@ lastmodified: "${file.lastModifiedDate}"
                 if (args[1] != null) {
                     if (!window.localStorage.getItem("user__cointsWaller")) {
                         new wallet(args[1], 0)
-                        returntxt("#", `Wallet created.`)
+                        returntxt(container, "#", `Wallet created.`)
                     }
                 }
             }
@@ -325,7 +335,7 @@ lastmodified: "${file.lastModifiedDate}"
                 if (args[1] != null) {
                     if (args[1] == "current") {
                         const __json = JSON.parse(window.localStorage.getItem("user__coinsWallet"))
-                        returntxt("$", `Name: ${__json.displayName}, Coins: ${__json.coins}`)
+                        returntxt(container, "$", `Name: ${__json.displayName}, Coins: ${__json.coins}`)
                     }
                 }
             }
@@ -388,7 +398,7 @@ lastmodified: "${file.lastModifiedDate}"
         // returntxt: moved to public function
 
         const returninput = function() {
-            document.body.insertAdjacentHTML("beforeend", `
+            container.insertAdjacentHTML("beforeend", `
                 <form id="newline_form">
                     <input placeholder="[&] New Line" name="cmd" id="cmd" autocomplete="off"></input>
                     <button style="display: none;">Submit</button>
@@ -402,7 +412,7 @@ lastmodified: "${file.lastModifiedDate}"
 
                 const cmdValue = document.getElementById("newline_form").cmd.value
 
-                returntxt("@", cmdValue, "user", colors.user)
+                returntxt(container, "@", cmdValue, "user", colors.user)
 
                 for (let command of commands) {
                     if (command.args) {
@@ -410,7 +420,7 @@ lastmodified: "${file.lastModifiedDate}"
                             if (cmdValue.split(" ")[1]) {
                                 command.run(cmdValue.split(" "))
                             } else {
-                                returntxt("/", `${cmdValue} requires arguments.`)
+                                returntxt(container, "/", `${cmdValue} requires arguments.`)
                             }
 
                             setTimeout(() => {
@@ -434,35 +444,14 @@ lastmodified: "${file.lastModifiedDate}"
                 }, 1);
 
                 if (!cmdSuccess) { // Check is command was run
-                    returntxt("/", `${cmdValue} is not recognized as a valid command.`)
+                    returntxt(container, "/", `${cmdValue} is not recognized as a valid command.`)
                 }
 
                 document.getElementById("newline_form").remove()
 
                 returninput()
-                $("#cmd").focus()
+                document.getElementById("cmd").focus()
             })
-
-            /* let ctrl = false
-            document.body.addEventListener('keydown', e => {
-                $("#cmd").focus()
-
-                if (e.key == "Control" && ctrl == false) {
-                    ctrl = true
-                } else if (e.key == "c" && ctrl == true) {
-                    ctrl = false
-                    returntxt("@", "^C", "user", colors.user)
-                } else if (e.key == "v" && ctrl == true) {
-                    ctrl = false
-                    returntxt("@", "^V", "user", colors.user)
-                }
-
-                setTimeout(() => {
-                    if (ctrl) {
-                        ctrl = false
-                    }
-                }, 100);
-            }) */
 
             document.addEventListener('contextmenu', event => {
                 if (contextmenu_enabled == false) {
@@ -472,30 +461,27 @@ lastmodified: "${file.lastModifiedDate}"
 
             // Log Site Console Events
 
-            if (this.webconsole) {
-                console.log = function(msg) {
-                    returntxt("@", msg, "webconsole_log")
-                }
+            console.log = function(msg) {
+                returntxt(container, "@", msg, "webconsole_log")
+            }
 
-                console.warn = function(msg) {
-                    returntxt("@", msg, "webconsole_warn")
-                }
+            console.warn = function(msg) {
+                returntxt(container, "@", msg, "webconsole_warn")
+            }
 
-                console.error = function(msg) {
-                    returntxt("@", msg, "webconsole_error")
-                }
+            console.error = function(msg) {
+                returntxt(container, "@", msg, "webconsole_error")
             }
         }
 
-        returntxt("@", this.startmsg, "main", colors.system)
+        returntxt(container, "@", this.startmsg, "main", colors.system)
         returninput()
     }, 1);
 }
 
 terminal.prototype = {
-    render: function(config) {
+    render: function(container, config) {
+        this.container = container
         this.configOpts = config
     },
 }
-
-// webconsole, background, textcolor, startmsg, cmds
