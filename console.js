@@ -20,20 +20,35 @@ const createAndApend = function(element, __, appendTo) {
 const returntxt = function(container, type, msg, from, color) {
     if (from) {
         createAndApend("div", function(e) {
-            e.innerHTML = `<pre style="display: inline; color: ${color || "#fff"}; margin: 0; padding: 0;">[${type}${from}]</pre>
-<pre style="display: inline; margin: 0; padding: 0;">${msg}</pre>`
+            e.innerHTML = `<pre style="display: inline; color: ${color || "#fff"}; margin: 0; padding: 0;">[${type}${from}] <span style="display: inline; margin: 0; padding: 0; color: white;">${msg}</span></pre>`
         }, container)
     } else {
         if (!type.search("/")) {
-            createAndApend("div", function(e) { e.innerHTML = `<pre style="color: ${colors.return.error}; margin: 0;">[${type}] ${msg}</pre>` }, container)
+            createAndApend("div", function(e) {
+                e.innerHTML = `<pre style="display: inline; color: ${colors.return.error}; margin: 0; padding: 0;">[${type}] ${msg}</pre>`
+            }, container)
         } else {
-            createAndApend("div", function(e) { e.innerHTML = `<pre style="color: ${colors.return.success}; margin: 0;">[${type}] ${msg}</pre>` }, container)
+            createAndApend("div", function(e) {
+                if (from !== undefined) {
+                    e.innerHTML = `<pre style="display: inline; color: ${colors.return.success}; margin: 0; padding: 0;">[${type}${from}] <span style="display: inline; margin: 0; padding: 0; color: white;">${msg}</span></pre>`
+                } else {
+                    e.innerHTML = `<pre style="display: inline; color: ${colors.return.success}; margin: 0; padding: 0;">[${type}] <span style="display: inline; margin: 0; padding: 0; color: white;">${msg}</span></pre>`
+                }
+            }, container)
         }
     }
 }
 
+let math = {}
+math.get_rand = function() { // generate a random number
+    let $ = Math.pow(Math.random() * (Math.PI + Math.SQRT2) * Math.sqrt(100), 1.5).toString()
+    $ = $.replaceAll(".", "")
+    return parseInt($)
+}
+
 function terminal() {
     setTimeout(() => {
+        let identifier = math.get_rand()
         let container = this.container
 
         createAndApend("section", function(e) {
@@ -47,7 +62,7 @@ function terminal() {
 
         createAndApend("div", function(e) {
             e.classList.remove("--viewline")
-            e.style["margin-top"] = "1.4em"
+            e.style["margin-top"] = "1.5em"
         }, this.container)
 
         this.background = this.configOpts.background || "rgb(30, 32, 48)"
@@ -55,6 +70,16 @@ function terminal() {
         this.textcolor = this.configOpts.textcolor || "#fff"
         this.startmsg = this.configOpts.startmsg || "Web console test running successfully"
         this.cmds = this.configOpts.cmds || []
+        this.readOnly = this.configOpts.readOnly || false
+
+        const configOpts = {
+            background: this.configOpts.background || "rgb(30, 32, 48)",
+            hoverBackground: this.configOpts.hoverBackground || "#222436",
+            textcolor: this.configOpts.textcolor || "#fff",
+            startmsg: this.configOpts.startmsg || "Web console test running successfully",
+            cmds: this.configOpts.cmds || [],
+            readOnly: this.configOpts.readOnly || false,
+        }
 
         let currentsettings = [{
             webconsole: this.webconsole,
@@ -79,20 +104,20 @@ function terminal() {
     }
 
     .--consoleRendered {
-        overflow-x: hidden;
-        background: var(--console-background);
-        font-family: Segoe WPC,Segoe UI,sans-serif;
-        -moz-osx-font-smoothing: grayscale;
-        -webkit-font-smoothing: antialiased;
-        text-rendering: optimizeSpeed;
-        margin: 0;
-        overflow-wrap: break-word;
-        padding: 0;
-        word-wrap: break-word;
-        color: white;
+        overflow-x: hidden !important;
+        background: var(--console-background) !important;
+        font-family: Segoe WPC,Segoe UI,sans-serif !important;
+        -moz-osx-font-smoothing: grayscale !important;
+        -webkit-font-smoothing: antialiased !important;
+        text-rendering: optimizeSpeed !important;
+        margin: 0 !important;
+        overflow-wrap: break-word !important;
+        padding: 0 !important;
+        word-wrap: break-word !important;
+        color: white !important;
         height: 100%;
-        display: flex;
-        flex-direction: column;
+        display: flex !important;
+        flex-direction: column !important;
     }
             
     .--consoleRendered::selection {
@@ -106,8 +131,6 @@ function terminal() {
     }
             
     .--consoleRendered pre {
-        margin: 0;
-        margin-top: 0;
         font-size: small !important;
         font-family: 'Fira Code', monospace;
     }
@@ -129,6 +152,7 @@ function terminal() {
 
     .--viewline {
         transition: all 0.1s;
+        padding-bottom: 3px;
     }
 
     .--viewline:hover {
@@ -137,7 +161,7 @@ function terminal() {
 
     .--consoleRendered form {
         transition: all 0.1s;
-        margin-top: 0.5em;
+        margin-top: 0.8em;
         padding-bottom: 3px;
         border-top: rgb(28, 28, 44) solid 1px;
         border-bottom: rgb(28, 28, 44) solid 1px;
@@ -214,7 +238,7 @@ function terminal() {
                 document.querySelectorAll(".--viewline").forEach((element) => {
                     element.remove()
                 })
-                document.getElementById("newline_form").remove()
+                document.getElementById(`newline_form:${identifier}`).remove()
                 returninput()
             }
         }, {
@@ -429,6 +453,16 @@ lastmodified: "${file.lastModifiedDate}"
                     window.open(`https://github.dev/${args[2]}`)
                 }
             }
+        }, {
+            title: "debug",
+            args: true,
+            run: function(args) {
+                cmdSuccess = true
+
+                if (args[1] === "instance") {
+                    returntxt(container, "#", `Instance: ${identifier}`)
+                }
+            }
         }, ]
 
         /*
@@ -488,61 +522,63 @@ lastmodified: "${file.lastModifiedDate}"
         // returntxt: moved to public function
 
         const returninput = function() {
-            container.insertAdjacentHTML("beforeend", `
-<form id="newline_form" style="display: inline-block;">
+            if (configOpts.readOnly !== true) {
+                container.insertAdjacentHTML("beforeend", `
+<form id="newline_form:${identifier}" style="display: inline-block;">
     <pre style="display: inline-block; color: rgb(79, 248, 116)"; margin: 0;">[@user]</pre>
-    <input placeholder="[&] New Line" name="cmd" id="cmd" autocomplete="off" style="display: inline-block;"></input>
+    <input placeholder="[&] New Line" name="cmd" id="cmd:${identifier}" autocomplete="off" style="display: inline-block;"></input>
     <button style="display: none;">Submit</button>
 </form>
             `)
 
-            // Command Submit
+                // Command Submit
 
-            document.getElementById("newline_form").addEventListener('submit', e => {
-                e.preventDefault()
+                document.getElementById(`newline_form:${identifier}`).addEventListener('submit', e => {
+                    e.preventDefault()
 
-                const cmdValue = document.getElementById("newline_form").cmd.value
+                    const cmdValue = document.getElementById(`newline_form:${identifier}`).cmd.value
 
-                returntxt(container, "@", cmdValue, "user", colors.user)
+                    returntxt(container, "@", cmdValue, "user", colors.user)
 
-                for (let command of commands) {
-                    if (command.args) {
-                        if (!cmdValue.search(command.title)) {
-                            if (cmdValue.split(" ")[1]) {
-                                command.run(cmdValue.split(" "))
-                            } else {
-                                returntxt(container, "/", `${cmdValue} requires arguments.`)
+                    for (let command of commands) {
+                        if (command.args) {
+                            if (!cmdValue.search(command.title)) {
+                                if (cmdValue.split(" ")[1]) {
+                                    command.run(cmdValue.split(" "))
+                                } else {
+                                    returntxt(container, "/", `${cmdValue} requires arguments.`)
+                                }
+
+                                setTimeout(() => {
+                                    cmdSuccess = false
+                                }, 1);
                             }
+                        } else {
+                            if (command.title == cmdValue) {
+                                command.run(cmdValue.split(" "))
 
-                            setTimeout(() => {
-                                cmdSuccess = false
-                            }, 1);
-                        }
-                    } else {
-                        if (command.title == cmdValue) {
-                            command.run(cmdValue.split(" "))
-
-                            setTimeout(() => {
-                                cmdSuccess = false
-                            }, 1);
+                                setTimeout(() => {
+                                    cmdSuccess = false
+                                }, 1);
+                            }
                         }
                     }
-                }
 
-                cmd_history.push([{ value: cmdValue }])
-                setTimeout(() => {
-                    window.localStorage.setItem("cmd_history", JSON.stringify(cmd_history))
-                }, 1);
+                    cmd_history.push([{ value: cmdValue }])
+                    setTimeout(() => {
+                        window.localStorage.setItem("cmd_history", JSON.stringify(cmd_history))
+                    }, 1);
 
-                if (!cmdSuccess) { // Check is command was run
-                    returntxt(container, "/", `${cmdValue} is not recognized as a valid command.`)
-                }
+                    if (!cmdSuccess) { // Check is command was run
+                        returntxt(container, "/", `${cmdValue} is not recognized as a valid command.`)
+                    }
 
-                document.getElementById("newline_form").remove()
+                    document.getElementById(`newline_form:${identifier}`).remove()
 
-                returninput()
-                document.getElementById("cmd").focus()
-            })
+                    returninput()
+                    document.getElementById(`cmd:${identifier}`).focus()
+                })
+            }
 
             document.addEventListener('contextmenu', event => {
                 if (contextmenu_enabled == false) {
