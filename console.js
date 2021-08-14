@@ -39,10 +39,15 @@ function terminal() {
         createAndApend("section", function(e) {
             e.classList.remove("--viewline")
             e.classList.add("--")
-            e.innerHTML = `<div class="--consoleTopbar">
+            e.innerHTML = `<div class="--consoleTopbar" style="user-select: none;">
     <p class="important">Console</p>
-    <p>Fully Connected</p>
+    <p>Running</p>
 </div>`
+        }, this.container)
+
+        createAndApend("div", function(e) {
+            e.classList.remove("--viewline")
+            e.style["margin-top"] = "1.4em"
         }, this.container)
 
         this.background = this.configOpts.background || "rgb(30, 32, 48)"
@@ -155,6 +160,8 @@ function terminal() {
         gap: 0.1em;
         border-bottom: rgb(20, 21, 32) solid 1px;
         background: rgb(28, 29, 44) !important;
+        position: fixed;
+        width: 100%;
     }
     
     .--consoleTopbar p {
