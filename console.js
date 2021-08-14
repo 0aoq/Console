@@ -10,23 +10,24 @@ let colors = {
     }
 }
 
+const createAndApend = function(element, __, appendTo) {
+    const e = document.createElement(element)
+    e.classList.add("--viewline")
+    if (__) { __(e) }
+    appendTo.appendChild(e)
+}
+
 const returntxt = function(container, type, msg, from, color) {
     if (from) {
-        container.insertAdjacentHTML("beforeend", `
-<p>
-<pre style="display: inline-block; color: ${color || "#fff"}; margin: 0;"">[${type}${from}]</pre>
-<pre style="display: inline-block; margin: 0;">${msg}</pre>
-</p>
-`)
+        createAndApend("div", function(e) {
+            e.innerHTML = `<pre style="display: inline; color: ${color || "#fff"}; margin: 0; padding: 0;">[${type}${from}]</pre>
+<pre style="display: inline; margin: 0; padding: 0;">${msg}</pre>`
+        }, container)
     } else {
         if (!type.search("/")) {
-            container.insertAdjacentHTML("beforeend", `
-    <pre style="color: ${colors.return.error}; margin: 0;">[${type}] ${msg}</pre>
-`)
+            createAndApend("div", function(e) { e.innerHTML = `<pre style="color: ${colors.return.error}; margin: 0;">[${type}] ${msg}</pre>` }, container)
         } else {
-            container.insertAdjacentHTML("beforeend", `
-    <pre style="color: ${colors.return.success}; margin: 0;">[${type}] ${msg}</pre>
-`)
+            createAndApend("div", function(e) { e.innerHTML = `<pre style="color: ${colors.return.success}; margin: 0;">[${type}] ${msg}</pre>` }, container)
         }
     }
 }
@@ -34,7 +35,18 @@ const returntxt = function(container, type, msg, from, color) {
 function terminal() {
     setTimeout(() => {
         let container = this.container
+
+        createAndApend("section", function(e) {
+            e.classList.remove("--viewline")
+            e.classList.add("--")
+            e.innerHTML = `<div class="--consoleTopbar">
+    <p class="important">Console</p>
+    <p>Fully Connected</p>
+</div>`
+        }, this.container)
+
         this.background = this.configOpts.background || "rgb(30, 32, 48)"
+        this.hoverBackground = this.configOpts.hoverBackground || "#222436"
         this.textcolor = this.configOpts.textcolor || "#fff"
         this.startmsg = this.configOpts.startmsg || "Web console test running successfully"
         this.cmds = this.configOpts.cmds || []
@@ -54,6 +66,9 @@ function terminal() {
 <!-- 0aoq/Console - https://github.com/0aoq/Console -->
 <!-- --- -->
 <style>
+    /* 0aoq/Console - Console styles */
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
+
     :root {
         --console-background: ${this.background};
     }
@@ -71,6 +86,8 @@ function terminal() {
         word-wrap: break-word;
         color: white;
         height: 100%;
+        display: flex;
+        flex-direction: column;
     }
             
     .--consoleRendered::selection {
@@ -85,8 +102,9 @@ function terminal() {
             
     .--consoleRendered pre {
         margin: 0;
-        margin-bottom: 0.3em;
         margin-top: 0;
+        font-size: small !important;
+        font-family: 'Fira Code', monospace;
     }
             
     .--consoleRendered input {
@@ -95,12 +113,62 @@ function terminal() {
         outline: none;
         height: auto;
         color: white;
-        display: block;
+        display: inline-block;
         border: none;
-        font-family: monospace;
+        font-family: 'Fira Code', monospace;
         white-space: pre;
-        width: 100vw;
+        width: 80vw;
+        font-size: small !important;
+        padding: 0 !important;
+    }
+
+    .--viewline {
+        transition: all 0.1s;
+    }
+
+    .--viewline:hover {
+        background: ${this.hoverBackground}; 
+    }
+
+    .--consoleRendered form {
+        transition: all 0.1s;
         margin-top: 0.5em;
+        padding-bottom: 3px;
+        border-top: rgb(28, 28, 44) solid 1px;
+        border-bottom: rgb(28, 28, 44) solid 1px;
+    }
+
+    .--consoleRendered form:hover {
+        background: ${this.hoverBackground}; 
+    }
+
+    .--viewline pre {
+        word-wrap: break-word !important;
+    }
+
+    /* ==================== */
+    /* CONSOLE TOPBAR       */
+    /* ==================== */
+
+    .--consoleTopbar {
+        display: flex;
+        gap: 0.1em;
+        border-bottom: rgb(20, 21, 32) solid 1px;
+        background: rgb(28, 29, 44) !important;
+    }
+    
+    .--consoleTopbar p {
+        font-size: small;
+        padding: 3px;
+        padding-left: 10px;
+        padding-right: 10px;
+        color: white;
+        font-weight: 600;
+    }
+    
+    .--consoleTopbar p.important {
+        font-weight: 605;
+        background: rgb(62, 104, 215);
     }
 </style>
 <!-- --- -->
@@ -136,7 +204,10 @@ function terminal() {
             run: function(args) {
                 cmdSuccess = true
 
-                document.body.innerHTML = ""
+                document.querySelectorAll(".--viewline").forEach((element) => {
+                    element.remove()
+                })
+                document.getElementById("newline_form").remove()
                 returninput()
             }
         }, {
@@ -339,6 +410,18 @@ lastmodified: "${file.lastModifiedDate}"
                     }
                 }
             }
+        }, {
+            title: "github",
+            args: true,
+            run: function(args) {
+                cmdSuccess = true
+
+                if (args[1] === "view") {
+                    window.open(`https://github.com/${args[2]}`)
+                } else if (args[1] === "edit") {
+                    window.open(`https://github.dev/${args[2]}`)
+                }
+            }
         }, ]
 
         /*
@@ -399,10 +482,11 @@ lastmodified: "${file.lastModifiedDate}"
 
         const returninput = function() {
             container.insertAdjacentHTML("beforeend", `
-                <form id="newline_form">
-                    <input placeholder="[&] New Line" name="cmd" id="cmd" autocomplete="off"></input>
-                    <button style="display: none;">Submit</button>
-                </form>
+<form id="newline_form" style="display: inline-block;">
+    <pre style="display: inline-block; color: rgb(79, 248, 116)"; margin: 0;">[@user]</pre>
+    <input placeholder="[&] New Line" name="cmd" id="cmd" autocomplete="off" style="display: inline-block;"></input>
+    <button style="display: none;">Submit</button>
+</form>
             `)
 
             // Command Submit
@@ -458,6 +542,10 @@ lastmodified: "${file.lastModifiedDate}"
                     event.preventDefault()
                 }
             });
+
+            /* container.addEventListener("click", () => {
+                document.getElementById("cmd").focus()
+            }) */
 
             // Log Site Console Events
 
