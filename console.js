@@ -1,12 +1,17 @@
 let cmdSuccess = false
 
 let colors = {
-    user: "rgb(79, 248, 116)",
     system: "rgb(248, 245, 79)",
 
     return: {
-        success: this.textcolor,
+        success: "rgb(79, 248, 116)",
         error: "rgb(255, 87, 87)"
+    },
+
+    shadow: {
+        success: "0 0 1px #001716, 0 0 2px #55c58752, 0 0 3px #55c58752, 0 0 5px #55c58752 !important",
+        error: "0 0 1px #000, 0 0 5px #fc1f2e3d, 0 0 3px #fc1f2e3d, 0 0 14px #fc1f2e3d !important",
+        system: "0 0 2px #393a33, 0 0 8px #f39f0575, 0 0 2px #f39f0575 !important"
     }
 }
 
@@ -17,33 +22,34 @@ const createAndApend = function(element, __, appendTo) {
     appendTo.appendChild(e)
 }
 
-const returntxt = function(container, type, msg, from, color) {
+const returntxt = function(container, type, msg, from, $class) {
     if (from) {
         createAndApend("div", function(e) {
-            e.innerHTML = `<pre style="display: inline; color: ${color || "#fff"}; margin: 0; padding: 0;">[${type}${from}] <span style="display: inline; margin: 0; padding: 0; color: white;">${msg}</span></pre>`
+            e.innerHTML = `<pre class="${$class || null}">[${type}${from}] <span class="--console1">${msg}</span></pre>`
         }, container)
     } else {
         if (!type.search("/")) {
             createAndApend("div", function(e) {
-                e.innerHTML = `<pre style="display: inline; color: ${colors.return.error}; margin: 0; padding: 0;">[${type}] ${msg}</pre>`
+                e.innerHTML = `<pre class="--console4">[${type}] ${msg}</pre>`
             }, container)
         } else {
             createAndApend("div", function(e) {
                 if (from !== undefined) {
-                    e.innerHTML = `<pre style="display: inline; color: ${colors.return.success}; margin: 0; padding: 0;">[${type}${from}] <span style="display: inline; margin: 0; padding: 0; color: white;">${msg}</span></pre>`
+                    e.innerHTML = `<pre class="--console3">[${type}${from}] <span class="--console1">${msg}</span></pre>`
                 } else {
-                    e.innerHTML = `<pre style="display: inline; color: ${colors.return.success}; margin: 0; padding: 0;">[${type}] <span style="display: inline; margin: 0; padding: 0; color: white;">${msg}</span></pre>`
+                    e.innerHTML = `<pre class="--console3">[${type}] <span class="--console1">${msg}</span></pre>`
                 }
             }, container)
         }
     }
 }
 
-let math = {}
-math.get_rand = function() { // generate a random number
-    let $ = Math.pow(Math.random() * (Math.PI + Math.SQRT2) * Math.sqrt(100), 1.5).toString()
-    $ = $.replaceAll(".", "")
-    return parseInt($)
+let math = {
+    get_rand: function() { // generate a random number
+        let $ = Math.pow(Math.random() * (Math.PI + Math.SQRT2) * Math.sqrt(100), 1.5).toString()
+        $ = $.replaceAll(".", "")
+        return parseInt($)
+    }
 }
 
 function terminal() {
@@ -200,6 +206,42 @@ function terminal() {
     .--consoleTopbar p.important {
         font-weight: 605;
         background: rgb(62, 104, 215);
+    }
+
+    /* ==================== */
+    /* CONSOLE COLORS       */
+    /* ==================== */
+
+    .--console1 { /* plaintext */
+        display: inline; 
+        margin: 0; 
+        padding: 0; 
+        color: white; 
+        text-shadow: none;
+    }
+
+    .--console2 { /* system */
+        display: inline; 
+        color: ${colors.system}; 
+        text-shadow: ${colors.shadow.system};
+        margin: 0; 
+        padding: 0;
+    }
+
+    .--console3 { /* success */
+        display: inline; 
+        color: ${colors.return.success}; 
+        text-shadow: ${colors.shadow.success};
+        margin: 0; 
+        padding: 0;
+    }
+
+    .--console4 { /* error */
+        display: inline; 
+        color: ${colors.return.error}; 
+        text-shadow: ${colors.shadow.error};
+        margin: 0; 
+        padding: 0;
     }
 </style>
 <!-- --- -->
@@ -525,9 +567,9 @@ lastmodified: "${file.lastModifiedDate}"
             if (configOpts.readOnly !== true) {
                 container.insertAdjacentHTML("beforeend", `
 <form id="newline_form:${identifier}" style="display: inline-block;">
-    <pre style="display: inline-block; color: rgb(79, 248, 116)"; margin: 0;">[@user]</pre>
+    <pre style="display: inline-block; color: ${colors.return.success}; margin: 0; text-shadow: ${colors.shadow.success};">[@user]</pre>
     <input placeholder="[&] New Line" name="cmd" id="cmd:${identifier}" autocomplete="off" style="display: inline-block;"></input>
-    <button style="display: none;">Submit</button>
+    <button style="display: none;" id="submit:${identifier}">Submit</button>
 </form>
             `)
 
@@ -535,10 +577,11 @@ lastmodified: "${file.lastModifiedDate}"
 
                 document.getElementById(`newline_form:${identifier}`).addEventListener('submit', e => {
                     e.preventDefault()
+                    e.stopImmediatePropagation()
 
                     const cmdValue = document.getElementById(`newline_form:${identifier}`).cmd.value
 
-                    returntxt(container, "@", cmdValue, "user", colors.user)
+                    returntxt(container, "@", cmdValue, "user", "--console3")
 
                     for (let command of commands) {
                         if (command.args) {
@@ -605,14 +648,26 @@ lastmodified: "${file.lastModifiedDate}"
             }
         }
 
-        returntxt(container, "@", this.startmsg, "main", colors.system)
+        returntxt(container, "@", this.startmsg, "main", "--console2")
         returninput()
-    }, 1);
+
+        if (this.callback) {
+            this.callback({
+                container: container,
+                identifier: identifier,
+                run: function(command) {
+                    document.getElementById(`cmd:${identifier}`).value = command
+                    document.getElementById(`submit:${identifier}`).click()
+                }
+            })
+        }
+    }, 0.0001);
 }
 
 terminal.prototype = {
-    render: function(container, config) {
+    render: function(container, config, callback) {
         this.container = container
         this.configOpts = config
+        this.callback = callback
     },
 }
