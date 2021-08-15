@@ -493,6 +493,8 @@ lastmodified: "${file.lastModifiedDate}"
                     window.open(`https://github.com/${args[2]}`)
                 } else if (args[1] === "edit") {
                     window.open(`https://github.dev/${args[2]}`)
+                } else if (args[1] === "new") {
+                    window.open(`https://github.com/new`)
                 }
             }
         }, {
@@ -505,7 +507,7 @@ lastmodified: "${file.lastModifiedDate}"
                     returntxt(container, "#", `Instance: ${identifier}`)
                 }
             }
-        }, ]
+        },]
 
         /*
         COMMAND TEMPLATE
